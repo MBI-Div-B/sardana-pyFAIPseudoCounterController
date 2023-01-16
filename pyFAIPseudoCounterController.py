@@ -16,7 +16,7 @@ _EXP_KEYS = [
 class FAI1DPseudoCounterController(PseudoCounterController):
 
     counter_roles = ("image", )
-    pseudo_counter_roles = ('q', 'I')
+    pseudo_counter_roles = ('q', 'chi', 'I1d', 'I2d')
 
     ctrl_attributes = {
         "dist": {
@@ -25,10 +25,14 @@ class FAI1DPseudoCounterController(PseudoCounterController):
                 "distance sample - detector plane "
                 "(orthogonal distance, not along the beam)"),
             DefaultValue: 1},
-        "npt": {
+        "npt_q": {
             Type: int,
-            Description: "number of points in the output pattern",
+            Description: "number of points in radial (q) direction",
             DefaultValue: 100},
+        "npt_chi": {
+            Type: int,
+            Description: "number of points in azimuthal (chi) direction",
+            DefaultValue: 36},
         "wavelength": {
             Type: float,
             Description: "Wavelength used (m)",
@@ -80,43 +84,76 @@ class FAI1DPseudoCounterController(PseudoCounterController):
         )
         self.detector = Detector()
         self.ai = AzimuthalIntegrator(detector=self.detector)
-        self._npt = 100
+        self._npt_q = 100
+        self._npt_chi = 36
+        self._I2d = np.zeros([self._npt_chi, self._npt_q])
+        self._q = np.arange(self._npt_q)
+        self._chi = np.arange(self._npt_chi)
+        self._image = None
 
     def GetAxisAttributes(self, axis):
         axis_attrs = PseudoCounterController.GetAxisAttributes(self, axis)
         axis_attrs = dict(axis_attrs)
-        axis_attrs['Value'][Type] = (float, )
-        axis_attrs['Value'][MaxDimSize] = (4096, )
+        if axis == 4:
+            axis_attrs['Value'][Type] = ((float, float), )
+            axis_attrs['Value'][MaxDimSize] = (4096, 4096)
+        else:
+            axis_attrs['Value'][Type] = (float, )
+            axis_attrs['Value'][MaxDimSize] = (4096, )
         return axis_attrs
 
     def GetAxisPar(self, axis, par):
         if par == "shape":
-            return (self._npt, )
+            if axis == 1:
+                return (self._npt_q, )
+            elif axis == 2:
+                return (self._npt_chi, )
+            elif axis == 3:
+                return (self._npt_q, )
+            elif axis == 4:
+                return (self._npt_chi, self._npt_q)
 
     def GetCtrlPar(self, par):
         if par in _EXP_KEYS:
             return self.ai.__getattribute__(par)
         elif par in _DETECTOR_KEYS:
             return self.detector.__getattribute__(par)
-        elif par == "npt":
-            return self._npt
+        elif par == "npt_q":
+            return self._npt_q
+        elif par == "npt_chi":
+            return self._npt_chi
 
     def SetCtrlPar(self, par, value):
-        if par == "npt":
+        if par == "npt_q":
             if value > 4096 or value < 1:
-                raise ValueError("npt out of range [1, 4096]")
-            self._npt = value
+                raise ValueError("npt_q out of range [1, 4096]")
+            else:
+                self._npt_q = value
+        elif par == "npt_chi":
+            if value > 360 or value < 1:
+                raise ValueError("npt_chi out of range [1, 360]")
+            else:
+                self._npt_chi = value
         elif par in _DETECTOR_KEYS:
             self.detector.__setattr__(par, value)
         elif par in _EXP_KEYS:
             self.ai.__setattr__(par, value)
 
     def Calc(self, axis, image):
-        # FIXME: avoid calculating twice!
         image = image[0]
-        q, I = self.ai.integrate1d(image, npt=self._npt)
+        # calculate az2d if image has changed
+        if not np.array_equal(self._image, image):
+            regrouped = self.ai.integrate2d(image, self._npt_q, self._npt_chi)
+            self._I2d, self._q, self._chi = regrouped
+            self._image = image.copy()
+
+        # return requested pseudocounter
         if axis == 1:
-            return q
-        else:
-            return I
+            return self._q
+        elif axis == 2:
+            return self._chi
+        elif axis == 3:
+            return self._I2d.sum(axis=0)
+        elif axis == 4:
+            return self._I2d
 
