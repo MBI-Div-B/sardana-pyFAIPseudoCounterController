@@ -143,7 +143,9 @@ class FAI1DPseudoCounterController(PseudoCounterController):
         image = image[0]
         # calculate az2d if image has changed
         if not np.array_equal(self._image, image):
-            regrouped = self.ai.integrate2d(image, self._npt_q, self._npt_chi)
+            regrouped = self.ai.integrate2d(
+                image, self._npt_q, self._npt_chi, method="csr"
+                )
             self._I2d, self._q, self._chi = regrouped
             self._image = image.copy()
 
