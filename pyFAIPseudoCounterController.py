@@ -13,7 +13,7 @@ _EXP_KEYS = [
     ]
 
 
-class FAI1DPseudoCounterController(PseudoCounterController):
+class FAIPseudoCounterController(PseudoCounterController):
 
     counter_roles = ("image", )
     pseudo_counter_roles = ('q', 'chi', 'I1d', 'I2d')
@@ -79,7 +79,7 @@ class FAI1DPseudoCounterController(PseudoCounterController):
     }
 
     def __init__(self, inst, props, *args, **kwargs):
-        super(FAI1DPseudoCounterController, self).__init__(
+        super(FAIPseudoCounterController, self).__init__(
             inst, props, *args, **kwargs
         )
         self.detector = Detector()
