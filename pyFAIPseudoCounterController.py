@@ -44,11 +44,11 @@ class FAIPseudoCounterController(PseudoCounterController):
         "pixel1": {
             Type: float,
             Description: "Pixel size of first detector dimension (m)",
-            DefaultValue: 0},
+            DefaultValue: 1e-5},
         "pixel2": {
             Type: float,
             Description: "Pixel size of second detector dimension (m)",
-            DefaultValue: 0},
+            DefaultValue: 1e-5},
         "poni1": {
             Type: float,
             Description: (
