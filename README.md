@@ -14,6 +14,7 @@ It provides 4 PseudoCounter axes:
 ## Creating the PseudoCounters
 
 Here is an example spock command to create the PseudoCounter with the name "faictrl" using a 2D ExpChannel called "ccd" as image source:
+
 `defctrl FAIPseudoCounterController faictrl image=ccd q=aiQ chi=aiChi I1d=ai1d I2d=ai2d`
 
 ## Configuring the azimuthal integration
@@ -21,8 +22,11 @@ Here is an example spock command to create the PseudoCounter with the name "faic
 The PseudoCounter _controller_ has attributes named similarly to the pyFAI AzimuthalIntegrator parameters. These can be set directly:
 
 To set the wavelength used:
+
 `faictrl.wavelength = 1.59e-9`
+
 Alternatively, the energy (in keV) can be set:
+
 `faictrl.energy = 0.779`
 
 Other parameters relate to the sample/detector geometry. The detector class used here is a simple contiguous detector with rectangular pixels. Check the [pyFAI documentation](https://pyfai.readthedocs.io/) for details.
