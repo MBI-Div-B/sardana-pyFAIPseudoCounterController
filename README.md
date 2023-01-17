@@ -1,6 +1,6 @@
 # pyFAIPseudoCounterController
 
-A PseudoCounter that uses [pyFAI](https://pyfai.readthedocs.io/) azimuthal integration/ reordering of 2D scattering images.
+A PseudoCounter that uses [pyFAI](https://pyfai.readthedocs.io/) for azimuthal integration/ reordering of 2D scattering images.
 It provides 4 PseudoCounter axes:
 * `q`: spectrum of momentum transfer coordinates (unit: 1/nm)
 * `chi`: spectrum of azimuthal angle coordinates (unit: degree)
