@@ -60,4 +60,19 @@ Other parameters relate to the sample/detector geometry. The detector class used
 
 ## Configuration macro
 
-todo...
+Use the `FAIconfig` macro to print out the current pyFAI configuration:
+
+```
+Door_test_1 [91]: FAIconfig faictrl
+FAI configuration:
+wavelength  =  9.998725680096796e-10
+    energy  =        1.24
+      dist  =         1.0
+     poni1  =         0.0
+     poni2  =         0.0
+      rot1  =         0.0
+      rot2  =         0.0
+      rot3  =         0.0
+    pixel1  =       1e-05
+    pixel2  =       1e-05
+```
