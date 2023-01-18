@@ -96,7 +96,7 @@ class FAIPseudoCounterController(PseudoCounterController):
         axis_attrs = dict(axis_attrs)
         if axis == 4:
             axis_attrs['Value'][Type] = ((float, float), )
-            axis_attrs['Value'][MaxDimSize] = (4096, 4096)
+            axis_attrs['Value'][MaxDimSize] = (360, 4096)
         else:
             axis_attrs['Value'][Type] = (float, )
             axis_attrs['Value'][MaxDimSize] = (4096, )
