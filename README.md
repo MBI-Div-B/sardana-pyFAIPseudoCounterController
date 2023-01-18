@@ -1,15 +1,22 @@
 # pyFAIPseudoCounterController
 
-A PseudoCounter that uses [pyFAI](https://pyfai.readthedocs.io/) for azimuthal integration/ reordering of 2D scattering images.
-It provides 4 PseudoCounter axes:
+A PseudoCounter that uses [pyFAI](https://pyfai.readthedocs.io/) for azimuthal integration/ reordering of 2D scattering images. Depending on the image size, this can be a relatively resource-hungry operation, which is why this PseudoCounter relies on pyFAI using the "CSR" algorithm for the heavy lifting. Refer to the pyFAI documentaion on [performance considerations](https://pyfai.readthedocs.io/en/v2023.1/performance.html).
+
+The PseudoCounter has 4 axes:
 * `q`: spectrum of momentum transfer coordinates (unit: 1/nm)
 * `chi`: spectrum of azimuthal angle coordinates (unit: degree)
 * `I1d`: spectrum of azimuthally integrated intensities as function of `q`
 * `I2d`: image of reordered intensities as function of `q` and `chi`
 
+The PseudoCounter axes can directly be plotted, e.g. in taurus, lavue, ...
+| dummy detector image I(x, y) | reordered image I(q, chi) | 1D intensity I(q) |
+|-|-|-|
+|![](doc/lavue_ccd.png) | ![](doc/lavue_ai2d.png) | ![](doc/taurus_ai1d.png) |
+
+
 ## Requirements
 
-* pyFAI, including its dependencies
+* pyFAI, including its optional pyopencl dependency
 
 ## Creating the PseudoCounters
 
@@ -48,7 +55,7 @@ Other parameters relate to the sample/detector geometry. The detector class used
 | rot2 | rad | Second rotation from sample ref to detector's ref
 | rot3 | rad | Third rotation from sample ref to detector's ref
 
-![Sample/ detector geometry illustration from pyfai.readthedocs.io](PONI.png)
+![Sample/ detector geometry illustration from pyfai.readthedocs.io](doc/PONI.png)
 (source: pyfai documentation)
 
 ## Configuration macro
