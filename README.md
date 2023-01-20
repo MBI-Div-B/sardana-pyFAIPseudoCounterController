@@ -68,6 +68,8 @@ FAI configuration:
 wavelength  =  9.998725680096796e-10
     energy  =        1.24
       dist  =         1.0
+     npt_q  =         100
+   npt_chi  =          36
      poni1  =         0.0
      poni2  =         0.0
       rot1  =         0.0
