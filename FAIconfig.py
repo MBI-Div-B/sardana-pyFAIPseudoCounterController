@@ -2,8 +2,8 @@ from sardana.macroserver.macro import macro, Type, Optional, Table
 from tango import DeviceProxy
 
 _CTRL_ATTRS = [
-    "wavelength", "energy", "dist", "poni1", "poni2", "rot1", "rot2", "rot3",
-    "pixel1", "pixel2",
+    "wavelength", "energy", "npt_q", "npt_chi", "dist", "poni1", "poni2",
+    "rot1", "rot2", "rot3", "pixel1", "pixel2",
 ]
 
 @macro([
