@@ -115,9 +115,9 @@ class FAIPseudoCounterController(PseudoCounterController):
 
     def GetCtrlPar(self, par):
         if par in _EXP_KEYS:
-            return self.ai.__getattribute__(par)
+            return getattr(self.ai, par)
         elif par in _DETECTOR_KEYS:
-            return self.detector.__getattribute__(par)
+            return getattr(self.detector, par)
         elif par == "npt_q":
             return self._npt_q
         elif par == "npt_chi":
@@ -135,9 +135,9 @@ class FAIPseudoCounterController(PseudoCounterController):
             else:
                 self._npt_chi = value
         elif par in _DETECTOR_KEYS:
-            self.detector.__setattr__(par, value)
+            setattr(self.detector, par, value)
         elif par in _EXP_KEYS:
-            self.ai.__setattr__(par, value)
+            setattr(self.ai, par, value)
 
     def Calc(self, axis, image):
         image = image[0]
