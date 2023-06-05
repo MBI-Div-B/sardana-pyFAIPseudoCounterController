@@ -76,6 +76,10 @@ class FAIPseudoCounterController(PseudoCounterController):
             Description: (
                 "Third rotation from sample ref to detector's ref (rad)"),
             DefaultValue: 0},
+        "mask": {
+            Type: ((float, float),),
+            Description: ("Pixel mask bitmap. Must match the image dimensions. If True = not use in the evalation, False = use."),
+            DefaultValue: np.zeros([400, 400])},
     }
 
     def __init__(self, inst, props, *args, **kwargs):
@@ -89,6 +93,7 @@ class FAIPseudoCounterController(PseudoCounterController):
         self._I2d = np.zeros([self._npt_chi, self._npt_q])
         self._q = np.arange(self._npt_q)
         self._chi = np.arange(self._npt_chi)
+        self._mask = np.zeros([400, 400])
         self._image = None
 
     def GetAxisAttributes(self, axis):
@@ -122,6 +127,8 @@ class FAIPseudoCounterController(PseudoCounterController):
             return self._npt_q
         elif par == "npt_chi":
             return self._npt_chi
+        elif par == "mask":
+            return self._mask
 
     def SetCtrlPar(self, par, value):
         if par == "npt_q":
@@ -134,6 +141,9 @@ class FAIPseudoCounterController(PseudoCounterController):
                 raise ValueError("npt_chi out of range [1, 360]")
             else:
                 self._npt_chi = value
+        elif par == "mask":
+            # lrlunin: need to check dimensions of detector...
+            self._mask = value
         elif par in _DETECTOR_KEYS:
             setattr(self.detector, par, value)
         elif par in _EXP_KEYS:
@@ -144,7 +154,7 @@ class FAIPseudoCounterController(PseudoCounterController):
         # calculate az2d if image has changed
         if not np.array_equal(self._image, image):
             regrouped = self.ai.integrate2d(
-                image, self._npt_q, self._npt_chi, method="csr"
+                image, self._npt_q, self._npt_chi, method="csr", mask=self._mask,
                 )
             self._I2d, self._q, self._chi = regrouped
             self._image = image.copy()
