@@ -1,92 +1,117 @@
 from sardana.pool.controller import (
-    PseudoCounterController, Type, Description, DefaultValue, MaxDimSize,
+    PseudoCounterController,
+    Type,
+    Description,
+    DefaultValue,
+    MaxDimSize,
 )
 from pyFAI.detectors import Detector
 from pyFAI.azimuthalIntegrator import AzimuthalIntegrator
 import numpy as np
 
 
-_DETECTOR_KEYS = ["pixel1", "pixel2",]
+_DETECTOR_KEYS = [
+    "pixel1",
+    "pixel2",
+]
 _EXP_KEYS = [
-    "wavelength", "energy", "dist", "poni1", "poni2",
-    "rot1", "rot2", "rot3",
-    ]
+    "wavelength",
+    "energy",
+    "dist",
+    "poni1",
+    "poni2",
+    "rot1",
+    "rot2",
+    "rot3",
+]
 
 
 class FAIPseudoCounterController(PseudoCounterController):
-
-    counter_roles = ("image", )
-    pseudo_counter_roles = ('q', 'chi', 'I1d', 'I2d')
+    counter_roles = ("image",)
+    pseudo_counter_roles = ("q", "chi", "I1d", "I2d")
 
     ctrl_attributes = {
         "dist": {
             Type: float,
             Description: (
                 "distance sample - detector plane "
-                "(orthogonal distance, not along the beam)"),
-            DefaultValue: 1},
+                "(orthogonal distance, not along the beam)"
+            ),
+            DefaultValue: 1,
+        },
         "npt_q": {
             Type: int,
             Description: "number of points in radial (q) direction",
-            DefaultValue: 100},
+            DefaultValue: 100,
+        },
         "npt_chi": {
             Type: int,
             Description: "number of points in azimuthal (chi) direction",
-            DefaultValue: 36},
+            DefaultValue: 36,
+        },
         "wavelength": {
             Type: float,
             Description: "Wavelength used (m)",
-            DefaultValue: 1e-9},
+            DefaultValue: 1e-9,
+        },
         "energy": {
             Type: float,
             Description: "Photon energy (keV)",
-            DefaultValue: 1.240},
+            DefaultValue: 1.240,
+        },
         "pixel1": {
             Type: float,
             Description: "Pixel size of first detector dimension (m)",
-            DefaultValue: 1e-5},
+            DefaultValue: 1e-5,
+        },
         "pixel2": {
             Type: float,
             Description: "Pixel size of second detector dimension (m)",
-            DefaultValue: 1e-5},
+            DefaultValue: 1e-5,
+        },
         "poni1": {
             Type: float,
             Description: (
                 "Coordinate of the point of normal incidence along "
-                "the detector's first dimension (m)"),
-            DefaultValue: 0},
+                "the detector's first dimension (m)"
+            ),
+            DefaultValue: 0,
+        },
         "poni2": {
             Type: float,
             Description: (
                 "Coordinate of the point of normal incidence along "
-                "the detector's second dimension (m)"),
-            DefaultValue: 0},
+                "the detector's second dimension (m)"
+            ),
+            DefaultValue: 0,
+        },
         "rot1": {
             Type: float,
-            Description: (
-                "First rotation from sample ref to detector's ref (rad)"),
-            DefaultValue: 0},
+            Description: ("First rotation from sample ref to detector's ref (rad)"),
+            DefaultValue: 0,
+        },
         "rot2": {
             Type: float,
-            Description: (
-                "Second rotation from sample ref to detector's ref (rad)"),
-            DefaultValue: 0},
+            Description: ("Second rotation from sample ref to detector's ref (rad)"),
+            DefaultValue: 0,
+        },
         "rot3": {
             Type: float,
-            Description: (
-                "Third rotation from sample ref to detector's ref (rad)"),
-            DefaultValue: 0},
+            Description: ("Third rotation from sample ref to detector's ref (rad)"),
+            DefaultValue: 0,
+        },
         "mask": {
             Type: ((float, float),),
-            Description: ("Pixel mask bitmap. Must match the image dimensions. "
-                          "Zero denotes unmasked (valid) pixels, all other are masked"),
-            DefaultValue: np.zeros([1, 1])},
+            Description: (
+                "Pixel mask bitmap. Must match the image dimensions. "
+                "Zero denotes unmasked (valid) pixels, all other are masked"
+            ),
+            DefaultValue: np.zeros([1, 1]),
+        },
     }
 
     def __init__(self, inst, props, *args, **kwargs):
-        super(FAIPseudoCounterController, self).__init__(
-            inst, props, *args, **kwargs
-        )
+        super(FAIPseudoCounterController, self).__init__(inst, props, *args, **kwargs)
         self.detector = Detector()
         self.ai = AzimuthalIntegrator(detector=self.detector)
         self._npt_q = 100
@@ -101,21 +126,21 @@ class FAIPseudoCounterController(PseudoCounterController):
         axis_attrs = PseudoCounterController.GetAxisAttributes(self, axis)
         axis_attrs = dict(axis_attrs)
         if axis == 4:
-            axis_attrs['Value'][Type] = ((float, float), )
-            axis_attrs['Value'][MaxDimSize] = (360, 4096)
+            axis_attrs["Value"][Type] = ((float, float),)
+            axis_attrs["Value"][MaxDimSize] = (360, 4096)
         else:
-            axis_attrs['Value'][Type] = (float, )
-            axis_attrs['Value'][MaxDimSize] = (4096, )
+            axis_attrs["Value"][Type] = (float,)
+            axis_attrs["Value"][MaxDimSize] = (4096,)
         return axis_attrs
 
     def GetAxisPar(self, axis, par):
         if par == "shape":
             if axis == 1:
-                return (self._npt_q, )
+                return (self._npt_q,)
             elif axis == 2:
-                return (self._npt_chi, )
+                return (self._npt_chi,)
             elif axis == 3:
-                return (self._npt_q, )
+                return (self._npt_q,)
             elif axis == 4:
                 return (self._npt_chi, self._npt_q)
 
@@ -156,8 +181,12 @@ class FAIPseudoCounterController(PseudoCounterController):
             # check mask shape matches, use no mask otherwise
             mask = self._mask if image.shape == self._mask.shape else None
             regrouped = self.ai.integrate2d(
-                image, self._npt_q, self._npt_chi, method="csr", mask=mask,
-                )
+                image,
+                self._npt_q,
+                self._npt_chi,
+                method="csr",
+                mask=mask,
+            )
             self._I2d, self._q, self._chi = regrouped
             self._image = image.copy()
 
@@ -170,4 +199,3 @@ class FAIPseudoCounterController(PseudoCounterController):
             return self._I2d.sum(axis=0)
         elif axis == 4:
             return self._I2d
-
