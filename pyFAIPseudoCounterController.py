@@ -135,9 +135,10 @@ class FAIPseudoCounterController(PseudoCounterController):
         "mask": {
             Type: ((int, int),),
             Description: (
-                "Pixel mask bitmap. Must match the image dimensions. If True = not use in the evalation, False = use."
+                "Pixel mask bitmap. Must match the image dimensions. "
+                "Zero denotes unmasked (valid) pixels, all other are masked"
             ),
-            DefaultValue: np.zeros([400, 400], dtype=int),
+            DefaultValue: np.zeros([1, 1]),
         },
     }
 
@@ -149,8 +150,8 @@ class FAIPseudoCounterController(PseudoCounterController):
         self._I2d = np.zeros([self._npt_chi, self._npt_q])
         self._q = np.arange(self._npt_q)
         self._chi = np.arange(self._npt_chi)
-        self._image = None
-        self._mask = None
+        self._image = np.array([])
+        self._mask = np.zeros([1, 1])
         self._lavue_tango_attribute_path = ""
         self._event_id = -1
         self._lavue_outer_ROI_name = ""
@@ -213,8 +214,7 @@ class FAIPseudoCounterController(PseudoCounterController):
         elif par == "direct_beam_ROI_name":
             self._direct_beam_ROI_name = value
         elif par == "mask":
-            # lrlunin: need to check dimensions of detector...
-            self._mask = value
+            self._mask = np.array(value)
         elif par in _DETECTOR_KEYS:
             setattr(self.detector, par, value)
         elif par in _EXP_KEYS:
@@ -224,14 +224,14 @@ class FAIPseudoCounterController(PseudoCounterController):
         image = image[0]
         # calculate az2d if image has changed
         if not np.array_equal(self._image, image):
-            # lazy mask update
-            self.update_mask()
+            # check mask shape matches, use no mask otherwise
+            mask = self._mask if image.shape == self._mask.shape else None
             regrouped = self.ai.integrate2d(
                 image,
                 self._npt_q,
                 self._npt_chi,
                 method="csr",
-                mask=self._mask,
+                mask=mask,
             )
             self._I2d, self._q, self._chi = regrouped
             self._image = image.copy()
