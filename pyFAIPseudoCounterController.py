@@ -138,7 +138,7 @@ class FAIPseudoCounterController(PseudoCounterController):
                 "Pixel mask bitmap. Must match the image dimensions. "
                 "Zero denotes unmasked (valid) pixels, all other are masked"
             ),
-            DefaultValue: np.zeros([1, 1]),
+            DefaultValue: np.zeros([400, 400]),
         },
     }
 
@@ -247,9 +247,9 @@ class FAIPseudoCounterController(PseudoCounterController):
             return self._I2d
 
     def update_mask(self, e=None):
-        self._mask = np.zeros([400, 400], dtype=int)
-        if self._image is not None:
-            self._mask = np.zeros_like(self._image, dtype=int)
+        self._mask = np.ones([400, 400], dtype=int)
+        #if self._image is not None:
+            #self._mask = np.zeros_like(self._image, dtype=int)
         if self.lavue_attr is not None:
             try:
                 self._log.debug(".")
@@ -264,7 +264,7 @@ class FAIPseudoCounterController(PseudoCounterController):
             if selected_ROI is not None:
                 x1, y1, x2, y2 = list(map(lambda x: max(x, 0), selected_ROI[0]))
                 print(x1, x2, y1, y2)
-                temp = np.ones_like(self._mask, dtype=int)
+                temp = np.ones([400, 400], dtype=int)
                 temp[y1:y2, x1:x2] = 0
                 self._mask = temp
 
