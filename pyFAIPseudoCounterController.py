@@ -155,7 +155,7 @@ class FAIPseudoCounterController(PseudoCounterController):
         elif axis == 2:
             return self._chi
         elif axis == 3:
-            return self._I2d.sum(axis=0)
+            return self._I2d.mean(axis=0)
         elif axis == 4:
             return self._I2d
 
